@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小説進捗マネージャー</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title" id="headerTitle">小説進捗マネージャー</h1>
+      <button class="btn btn-primary" id="newProjectBtn">+ 新規プロジェクト</button>
+    </header>
+
+    <!-- Project List View -->
+    <main id="projectListView" class="main">
+      <div class="empty-state" id="emptyState">
+        <p class="empty-icon">📖</p>
+        <p>まだプロジェクトがありません</p>
+        <p class="empty-sub">「新規プロジェクト」ボタンから作品を追加しましょう</p>
+      </div>
+      <div class="project-grid" id="projectGrid"></div>
+    </main>
+
+    <!-- Project Detail View -->
+    <div id="projectDetailView" class="main" style="display:none;">
+      <div class="detail-header">
+        <button class="btn btn-back" id="backBtn">&larr; 一覧に戻る</button>
+        <div class="detail-actions">
+          <button class="btn btn-secondary" id="editProjectBtn">編集</button>
+          <button class="btn btn-danger" id="deleteProjectBtn">削除</button>
+        </div>
+      </div>
+
+      <div class="detail-info" id="detailInfo"></div>
+
+      <!-- Word Count Section -->
+      <section class="section" id="wordCountSection" style="display:none;">
+        <h2 class="section-title">文字数の進捗</h2>
+        <div class="wordcount-controls">
+          <div class="wordcount-input-group">
+            <label for="currentWordCount">現在の文字数</label>
+            <input type="number" id="currentWordCount" min="0" placeholder="0">
+            <button class="btn btn-primary" id="updateWordCountBtn">更新</button>
+          </div>
+        </div>
+        <div class="progress-bar-container" id="wordCountProgress"></div>
+        <div class="wordcount-history" id="wordCountHistory"></div>
+      </section>
+
+      <!-- Plot Section -->
+      <section class="section" id="plotSection" style="display:none;">
+        <h2 class="section-title">プロットの進捗</h2>
+        <div class="plot-controls">
+          <button class="btn btn-primary" id="addPlotBtn">+ プロット項目を追加</button>
+        </div>
+        <div class="progress-bar-container" id="plotProgress"></div>
+        <div class="plot-list" id="plotList"></div>
+      </section>
+    </div>
+
+    <!-- Project Form Modal -->
+    <div class="modal-overlay" id="projectModal" style="display:none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="modalTitle">新規プロジェクト</h2>
+          <button class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <form id="projectForm">
+          <div class="form-group">
+            <label for="projectTitle">作品タイトル <span class="required">*</span></label>
+            <input type="text" id="projectTitle" required placeholder="作品のタイトル">
+          </div>
+          <div class="form-group">
+            <label for="projectDescription">概要</label>
+            <textarea id="projectDescription" rows="3" placeholder="作品の簡単な説明"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="projectDeadline">締め切り・目標完成日</label>
+            <input type="date" id="projectDeadline">
+            <span class="form-hint">任意</span>
+          </div>
+          <div class="form-group">
+            <label for="projectTargetWordCount">目標文字数</label>
+            <input type="number" id="projectTargetWordCount" min="0" placeholder="例: 100000">
+            <span class="form-hint">任意</span>
+          </div>
+          <div class="form-group">
+            <label>進捗管理モード <span class="required">*</span></label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="progressMode" value="wordcount"> 文字数ベース
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="progressMode" value="plot"> プロットベース
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="progressMode" value="both" checked> 両方
+              </label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelFormBtn">キャンセル</button>
+            <button type="submit" class="btn btn-primary">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Plot Item Modal -->
+    <div class="modal-overlay" id="plotModal" style="display:none;">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h2 id="plotModalTitle">プロット項目を追加</h2>
+          <button class="modal-close" id="plotModalCloseBtn">&times;</button>
+        </div>
+        <form id="plotForm">
+          <div class="form-group">
+            <label for="plotTitle">項目名 <span class="required">*</span></label>
+            <input type="text" id="plotTitle" required placeholder="例: 第1章、起、導入部">
+          </div>
+          <div class="form-group">
+            <label for="plotDescription">説明</label>
+            <textarea id="plotDescription" rows="3" placeholder="この項目の内容メモ"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelPlotBtn">キャンセル</button>
+            <button type="submit" class="btn btn-primary">追加</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="modal-overlay" id="confirmModal" style="display:none;">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h2>確認</h2>
+        </div>
+        <p id="confirmMessage" class="confirm-message"></p>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="confirmCancelBtn">キャンセル</button>
+          <button class="btn btn-danger" id="confirmOkBtn">削除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
