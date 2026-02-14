@@ -49,12 +49,125 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
   }
 
+  // ---- Mascot Characters ----
+  const CHARACTER_KEY = "novel_progress_character";
+
+  const CHARACTERS = {
+    cat: {
+      name: "ねこ",
+      icon: '<svg viewBox="0 0 64 64"><polygon points="13,24 20,5 28,24" fill="#f5c56c"/><polygon points="36,24 44,5 51,24" fill="#f5c56c"/><polygon points="16,24 20,11 25,24" fill="#ffb6c1"/><polygon points="39,24 44,11 49,24" fill="#ffb6c1"/><circle cx="32" cy="38" r="21" fill="#f5c56c"/><ellipse cx="24" cy="34" rx="2.8" ry="3.2" fill="#2c2c2c"/><ellipse cx="40" cy="34" rx="2.8" ry="3.2" fill="#2c2c2c"/><circle cx="22.5" cy="33" r="1" fill="#fff"/><circle cx="38.5" cy="33" r="1" fill="#fff"/><ellipse cx="32" cy="40" rx="2.5" ry="2" fill="#ffb6c1"/><path d="M29,43 Q32,47 35,43" fill="none" stroke="#2c2c2c" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="36" x2="19" y2="38" stroke="#d4a84a" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="42" x2="19" y2="41" stroke="#d4a84a" stroke-width="1" stroke-linecap="round"/><line x1="45" y1="38" x2="57" y2="36" stroke="#d4a84a" stroke-width="1" stroke-linecap="round"/><line x1="45" y1="41" x2="57" y2="42" stroke="#d4a84a" stroke-width="1" stroke-linecap="round"/></svg>',
+      messages: [
+        "にゃ〜、今日も頑張ってるにゃ！えらいにゃ〜",
+        "ゴロゴロ…書き進めてて偉いにゃ。ご褒美にお昼寝はどうにゃ？",
+        "にゃんとも素晴らしい進捗にゃ！",
+        "焦らなくていいにゃ〜。ねこだって気まぐれにゃ",
+        "今日も一文字でも書けば、それは前進にゃ！",
+        "にゃ〜、あなたの物語、楽しみにしてるにゃ",
+        "ゴロゴロ…いいペースにゃ。このまま続けるにゃ〜",
+        "にゃんだかいい感じにゃ！その調子にゃ！",
+        "にゃふぅ…あなたが書いてる横で丸くなってるにゃ",
+        "一緒にいるだけで安心するにゃ。頑張ってにゃ〜",
+      ],
+    },
+    dog: {
+      name: "いぬ",
+      icon: '<svg viewBox="0 0 64 64"><ellipse cx="13" cy="28" rx="9" ry="15" fill="#c8875a" transform="rotate(-15,13,28)"/><ellipse cx="51" cy="28" rx="9" ry="15" fill="#c8875a" transform="rotate(15,51,28)"/><circle cx="32" cy="36" r="21" fill="#e8a86c"/><circle cx="24" cy="32" r="5" fill="#fff"/><circle cx="40" cy="32" r="5" fill="#fff"/><circle cx="25.5" cy="32" r="3" fill="#2c2c2c"/><circle cx="41.5" cy="32" r="3" fill="#2c2c2c"/><circle cx="24" cy="31" r="1" fill="#fff"/><circle cx="40" cy="31" r="1" fill="#fff"/><ellipse cx="32" cy="40" rx="4" ry="3" fill="#2c2c2c"/><path d="M28,44 Q32,49 36,44" fill="none" stroke="#2c2c2c" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="32" cy="50" rx="3.5" ry="4" fill="#ff8fa0"/></svg>',
+      messages: [
+        "ワンワン！今日も頑張ってるね！すごいすごい！",
+        "しっぽブンブン！あなたの執筆、応援してるワン！",
+        "やったー！書いてるだけで偉いワン！大好き！",
+        "散歩のあとの執筆は最高だワン！がんばれー！",
+        "ワン！毎日コツコツ、それが一番だワン！",
+        "嬉しいワン！あなたが書いてくれて嬉しいワン！",
+        "今日もいい調子だワン！ご褒美にナデナデ？",
+        "ワンワン！最高の作品になるって信じてるワン！",
+        "おかえり！待ってたワン！一緒に頑張るワン！",
+        "どんな時もそばにいるワン！ファイトだワン！",
+      ],
+    },
+    butler: {
+      name: "執事",
+      icon: '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="24" rx="22" ry="14" fill="#3a3a3a"/><rect x="14" y="14" width="36" height="10" rx="3" fill="#3a3a3a"/><circle cx="32" cy="36" r="19" fill="#f5dcc0"/><circle cx="42" cy="33" r="6" fill="none" stroke="#c8a84e" stroke-width="1.5"/><line x1="47" y1="36" x2="52" y2="44" stroke="#c8a84e" stroke-width="1" stroke-linecap="round"/><circle cx="24" cy="33" r="2" fill="#2c2c2c"/><circle cx="42" cy="33" r="1.8" fill="#2c2c2c"/><line x1="20" y1="28" x2="28" y2="29.5" stroke="#3a3a3a" stroke-width="1.8" stroke-linecap="round"/><line x1="38" y1="29.5" x2="46" y2="28" stroke="#3a3a3a" stroke-width="1.8" stroke-linecap="round"/><path d="M25,43 Q28,41 32,43 Q36,41 39,43" fill="none" stroke="#3a3a3a" stroke-width="1.5" stroke-linecap="round"/><polygon points="27,56 32,52 37,56 32,54" fill="#c9302c"/></svg>',
+      messages: [
+        "お疲れ様でございます。本日もご執筆、感服いたします",
+        "お見事でございます。着実に進んでおりますね",
+        "ご主人様、お茶をお持ちしましょうか。休憩も大切でございます",
+        "素晴らしいペースでございます。このまま参りましょう",
+        "一行一行が、傑作への道でございます",
+        "ご主人様のお力添えができて光栄でございます",
+        "本日の進捗、大変よろしいかと存じます",
+        "無理はなさらず。名作は焦らず生まれるものでございます",
+        "お言葉ですが、そろそろお食事の時間でございます",
+        "ご主人様の才能を信じております。引き続き、お仕えいたします",
+      ],
+    },
+    secretary: {
+      name: "秘書",
+      icon: '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="22" rx="23" ry="14" fill="#5a3825"/><rect x="11" y="22" width="42" height="5" rx="2" fill="#5a3825"/><circle cx="32" cy="36" r="19" fill="#f5dcc0"/><rect x="18" y="30" width="11" height="8" rx="3" fill="none" stroke="#5b6abf" stroke-width="1.5"/><rect x="35" y="30" width="11" height="8" rx="3" fill="none" stroke="#5b6abf" stroke-width="1.5"/><line x1="29" y1="34" x2="35" y2="34" stroke="#5b6abf" stroke-width="1.2"/><circle cx="23.5" cy="34" r="1.8" fill="#2c2c2c"/><circle cx="40.5" cy="34" r="1.8" fill="#2c2c2c"/><path d="M28,44 Q32,47 36,44" fill="none" stroke="#e67e5a" stroke-width="1.5" stroke-linecap="round"/><circle cx="18" cy="41" r="3.5" fill="#ffcdd2" opacity="0.4"/><circle cx="46" cy="41" r="3.5" fill="#ffcdd2" opacity="0.4"/></svg>',
+      messages: [
+        "お疲れ様です。今日のスケジュール、順調に進んでいますよ",
+        "いい調子ですね。この勢いで行きましょう！",
+        "進捗状況を確認しました。着実に前進しています",
+        "少し休憩を入れましょうか？リフレッシュも大事ですよ",
+        "素晴らしい集中力ですね。さすがです",
+        "今日の目標達成まであと少し。頑張りましょう！",
+        "振り返ると、かなり成長していますよ。自信を持って！",
+        "予定通りの進行です。完璧ですね",
+        "スケジュール管理はお任せください。あなたは書くことに集中して",
+        "あなたの頑張り、ちゃんと記録しておきますね",
+      ],
+    },
+    robot: {
+      name: "ロボ",
+      icon: '<svg viewBox="0 0 64 64"><line x1="32" y1="8" x2="32" y2="16" stroke="#90a4ae" stroke-width="2.5"/><circle cx="32" cy="6" r="3.5" fill="#4caf7d"/><rect x="11" y="16" width="42" height="38" rx="7" fill="#b0bec5"/><rect x="15" y="20" width="34" height="30" rx="5" fill="#cfd8dc"/><rect x="19" y="26" width="10" height="8" rx="2" fill="#263238"/><rect x="35" y="26" width="10" height="8" rx="2" fill="#263238"/><rect x="22" y="28" width="4" height="4" rx="1" fill="#4caf7d"/><rect x="38" y="28" width="4" height="4" rx="1" fill="#4caf7d"/><rect x="22" y="40" width="20" height="6" rx="2" fill="#263238"/><line x1="26" y1="40" x2="26" y2="46" stroke="#cfd8dc" stroke-width="1"/><line x1="30" y1="40" x2="30" y2="46" stroke="#cfd8dc" stroke-width="1"/><line x1="34" y1="40" x2="34" y2="46" stroke="#cfd8dc" stroke-width="1"/><line x1="38" y1="40" x2="38" y2="46" stroke="#cfd8dc" stroke-width="1"/><circle cx="9" cy="35" r="3.5" fill="#90a4ae"/><circle cx="55" cy="35" r="3.5" fill="#90a4ae"/></svg>',
+      messages: [
+        "解析完了。あなたの執筆活動ハ順調デス。継続ヲ推奨シマス",
+        "データベース更新。進捗率、良好ト判定シマシタ",
+        "アドバイス：適度ナ休息ハ生産性ヲ向上サセマス",
+        "観測結果：アナタノ創造力レベルハ高イ状態デス",
+        "計算中...完成予測ハ良好デス。コノ調子ヲ維持シテクダサイ",
+        "エラーナシ。スベテ順調ニ進行中デス",
+        "分析結果：一日一歩ノ積ミ重ネガ最モ効率的デス",
+        "レポート：アナタノ物語ハ素晴ラシイデータヲ示シテイマス",
+        "モチベーション値、正常範囲デス。ソノママ続ケテクダサイ",
+        "バックアップ完了。アナタノ努力ハ記録サレテイマス",
+      ],
+    },
+    mob: {
+      name: "モブ",
+      icon: '<svg viewBox="0 0 64 64"><circle cx="32" cy="28" r="22" fill="#a1887f"/><circle cx="32" cy="36" r="19" fill="#f5dcc0"/><path d="M14,30 Q22,14 32,12 Q42,14 50,30" fill="#a1887f"/><circle cx="24" cy="34" r="2" fill="#2c2c2c"/><circle cx="40" cy="34" r="2" fill="#2c2c2c"/><path d="M28,43 Q32,46 36,43" fill="none" stroke="#2c2c2c" stroke-width="1.2" stroke-linecap="round"/></svg>',
+      messages: [
+        "おっ、今日も書いてるんだ。頑張ってるね〜",
+        "いいじゃんいいじゃん！その調子！",
+        "あ、すごい。ちゃんと続けてるんだね",
+        "まあ、無理しないでね。マイペースが一番だよ",
+        "おお〜進んでるじゃん！いい感じ！",
+        "書くって大変だよね。でも続けてるのえらい",
+        "完成したら読ませてよ〜。楽しみにしてる",
+        "なんか、応援してるよ。うん、頑張って",
+        "あ、ども。今日もお疲れ〜",
+        "地味にすごいと思う。いや、ほんとに",
+      ],
+    },
+  };
+
+  const CHARACTER_ORDER = ["cat", "dog", "butler", "secretary", "robot", "mob"];
+
+  function loadCharacter() {
+    return localStorage.getItem(CHARACTER_KEY) || "cat";
+  }
+
+  function saveCharacter(id) {
+    localStorage.setItem(CHARACTER_KEY, id);
+  }
+
   // ---- State ----
   let projects = loadProjects();
   let currentProjectId = null;
   let editingProjectId = null;
   let editingPlotId = null;
   let confirmCallback = null;
+  let selectedCharacter = loadCharacter();
 
   // ---- DOM Elements ----
   const $ = (sel) => document.querySelector(sel);
@@ -101,6 +214,13 @@
   const confirmCancelBtn = $("#confirmCancelBtn");
   const confirmOkBtn = $("#confirmOkBtn");
 
+  const mascotSection = $("#mascotSection");
+  const mascotIcon = $("#mascotIcon");
+  const mascotName = $("#mascotName");
+  const mascotMessage = $("#mascotMessage");
+  const mascotRefresh = $("#mascotRefresh");
+  const mascotSelector = $("#mascotSelector");
+
   // ---- Helpers ----
   function getProject(id) {
     return projects.find((p) => p.id === id);
@@ -143,6 +263,41 @@
       if (wp == null) return pp;
       return Math.round((wp + pp) / 2);
     }
+  }
+
+  // ---- Mascot ----
+  function pickRandomMessage(charId) {
+    const msgs = CHARACTERS[charId].messages;
+    return msgs[Math.floor(Math.random() * msgs.length)];
+  }
+
+  function renderMascot() {
+    const char = CHARACTERS[selectedCharacter];
+    if (!char) return;
+
+    mascotIcon.innerHTML = char.icon;
+    mascotName.textContent = char.name;
+    mascotMessage.textContent = pickRandomMessage(selectedCharacter);
+
+    // Render selector
+    mascotSelector.innerHTML = CHARACTER_ORDER.map((id) => {
+      const c = CHARACTERS[id];
+      const activeClass = id === selectedCharacter ? "active" : "";
+      return `
+        <button class="mascot-selector-btn ${activeClass}" data-char-id="${id}" title="${c.name}">
+          ${c.icon}
+          <span class="mascot-selector-btn-label">${c.name}</span>
+        </button>
+      `;
+    }).join("");
+
+    mascotSelector.querySelectorAll(".mascot-selector-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedCharacter = btn.dataset.charId;
+        saveCharacter(selectedCharacter);
+        renderMascot();
+      });
+    });
   }
 
   // ---- Rendering: Project List ----
@@ -765,6 +920,10 @@
   cancelPlotBtn.addEventListener("click", closePlotModal);
   plotForm.addEventListener("submit", savePlotItem);
 
+  mascotRefresh.addEventListener("click", () => {
+    mascotMessage.textContent = pickRandomMessage(selectedCharacter);
+  });
+
   confirmCancelBtn.addEventListener("click", closeConfirm);
   confirmOkBtn.addEventListener("click", () => {
     if (confirmCallback) confirmCallback();
@@ -797,5 +956,6 @@
   });
 
   // ---- Init ----
+  renderMascot();
   renderProjectList();
 })();
