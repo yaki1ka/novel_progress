@@ -214,6 +214,12 @@
   const confirmCancelBtn = $("#confirmCancelBtn");
   const confirmOkBtn = $("#confirmOkBtn");
 
+  const dataMenuBtn = $("#dataMenuBtn");
+  const dataMenu = $("#dataMenu");
+  const exportBtn = $("#exportBtn");
+  const importBtn = $("#importBtn");
+  const importFileInput = $("#importFileInput");
+
   const mascotSection = $("#mascotSection");
   const mascotIcon = $("#mascotIcon");
   const mascotName = $("#mascotName");
@@ -887,6 +893,64 @@
     });
   }
 
+  // ---- Data Export / Import ----
+  function exportData() {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      character: selectedCharacter,
+      projects: projects,
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "novel-progress-" + todayISO() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = JSON.parse(e.target.result);
+
+        if (!data.projects || !Array.isArray(data.projects)) {
+          alert("無効なファイル形式です。エクスポートしたJSONファイルを選択してください。");
+          return;
+        }
+
+        showConfirm(
+          "現在のデータをすべて上書きしてインポートしますか？（元に戻せません）",
+          () => {
+            projects = data.projects;
+            persist();
+
+            if (data.character && CHARACTERS[data.character]) {
+              selectedCharacter = data.character;
+              saveCharacter(selectedCharacter);
+            }
+
+            if (currentProjectId) {
+              closeProjectDetail();
+            } else {
+              renderProjectList();
+            }
+            renderMascot();
+            alert("インポートが完了しました。（" + projects.length + "件のプロジェクト）");
+          }
+        );
+      } catch {
+        alert("ファイルの読み込みに失敗しました。正しいJSONファイルか確認してください。");
+      }
+    };
+    reader.readAsText(file);
+  }
+
   // ---- Confirm Dialog ----
   function showConfirm(message, onOk) {
     confirmMessage.textContent = message;
@@ -919,6 +983,37 @@
   plotModalCloseBtn.addEventListener("click", closePlotModal);
   cancelPlotBtn.addEventListener("click", closePlotModal);
   plotForm.addEventListener("submit", savePlotItem);
+
+  // Data menu
+  dataMenuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dataMenu.style.display = dataMenu.style.display === "none" ? "" : "none";
+  });
+
+  document.addEventListener("click", () => {
+    dataMenu.style.display = "none";
+  });
+
+  dataMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  exportBtn.addEventListener("click", () => {
+    dataMenu.style.display = "none";
+    exportData();
+  });
+
+  importBtn.addEventListener("click", () => {
+    dataMenu.style.display = "none";
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener("change", () => {
+    if (importFileInput.files.length > 0) {
+      importData(importFileInput.files[0]);
+      importFileInput.value = "";
+    }
+  });
 
   mascotRefresh.addEventListener("click", () => {
     mascotMessage.textContent = pickRandomMessage(selectedCharacter);
