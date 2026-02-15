@@ -25,6 +25,11 @@
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 10V1M4.5 4.5 8 1l3.5 3.5M2 12v2h12v-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
               インポート
             </button>
+            <hr class="data-menu-divider">
+            <button class="data-menu-item" id="shareUrlBtn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 10l4-4M4.5 7.5l-1 1a3 3 0 004.24 4.24l1-1M11.5 8.5l1-1a3 3 0 00-4.24-4.24l-1 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              URL共有
+            </button>
           </div>
         </div>
         <button class="btn btn-primary" id="newProjectBtn">+ 新規プロジェクト</button>
@@ -81,6 +86,10 @@
         </div>
         <div class="progress-bar-container" id="wordCountProgress"></div>
         <div class="wordcount-history" id="wordCountHistory"></div>
+      </section>
+
+      <!-- Timeline Section -->
+      <section class="section" id="timelineSection">
       </section>
 
       <!-- Plot Section -->
@@ -163,6 +172,57 @@
             <button type="submit" class="btn btn-primary">追加</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- URL Share Modal -->
+    <div class="modal-overlay" id="shareModal" style="display:none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>URL共有</h2>
+          <button class="modal-close" id="shareModalCloseBtn">&times;</button>
+        </div>
+        <div class="share-modal-body">
+          <div class="share-guide">
+            <h3 class="share-guide-title">使い方ガイド</h3>
+            <ol class="share-guide-steps">
+              <li><span class="share-step-num">1</span>下の「URLを生成」ボタンを押す</li>
+              <li><span class="share-step-num">2</span>生成されたURLをコピー</li>
+              <li><span class="share-step-num">3</span>別の端末のブラウザでURLを開く</li>
+              <li><span class="share-step-num">4</span>「データを復元しますか？」と表示されるので「復元」を選択</li>
+            </ol>
+            <div class="share-guide-note">
+              <strong>注意:</strong> データ量が多い場合、URLが非常に長くなることがあります。その場合はJSONエクスポートをご利用ください。
+            </div>
+          </div>
+          <div class="share-url-section" id="shareUrlSection" style="display:none;">
+            <label class="share-url-label">共有URL</label>
+            <div class="share-url-box">
+              <input type="text" id="shareUrlInput" readonly>
+              <button class="btn btn-primary btn-sm" id="copyShareUrlBtn">コピー</button>
+            </div>
+            <div class="share-url-size" id="shareUrlSize"></div>
+          </div>
+          <div class="share-actions">
+            <button class="btn btn-primary" id="generateShareUrlBtn">URLを生成</button>
+            <button class="btn btn-secondary" id="closeShareModalBtn">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- URL Restore Dialog -->
+    <div class="modal-overlay" id="restoreModal" style="display:none;">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h2>データの復元</h2>
+        </div>
+        <p class="confirm-message">共有URLからデータが検出されました。現在のデータを上書きして復元しますか？</p>
+        <div class="restore-info" id="restoreInfo"></div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="restoreCancelBtn">キャンセル</button>
+          <button class="btn btn-primary" id="restoreOkBtn">復元する</button>
+        </div>
       </div>
     </div>
 

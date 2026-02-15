@@ -220,6 +220,20 @@
   const importBtn = $("#importBtn");
   const importFileInput = $("#importFileInput");
 
+  const shareModal = $("#shareModal");
+  const shareModalCloseBtn = $("#shareModalCloseBtn");
+  const shareUrlSection = $("#shareUrlSection");
+  const shareUrlInput = $("#shareUrlInput");
+  const copyShareUrlBtn = $("#copyShareUrlBtn");
+  const shareUrlSize = $("#shareUrlSize");
+  const generateShareUrlBtn = $("#generateShareUrlBtn");
+  const closeShareModalBtn = $("#closeShareModalBtn");
+  const shareUrlBtn = $("#shareUrlBtn");
+
+  const restoreModal = $("#restoreModal");
+  const restoreCancelBtn = $("#restoreCancelBtn");
+  const restoreOkBtn = $("#restoreOkBtn");
+
   const mascotSection = $("#mascotSection");
   const mascotIcon = $("#mascotIcon");
   const mascotName = $("#mascotName");
@@ -452,6 +466,9 @@
     } else {
       plotSection.style.display = "none";
     }
+
+    // Timeline
+    renderTimeline(p);
   }
 
   function renderWordCountProgress(p) {
@@ -632,6 +649,128 @@
 
     // Drag and drop for reordering
     setupDragAndDrop();
+  }
+
+  // ---- Timeline ----
+  function renderTimeline(p) {
+    const timelineSection = $("#timelineSection");
+    if (!timelineSection) return;
+
+    // Build timeline events from multiple sources
+    const events = [];
+
+    // Project creation
+    events.push({
+      date: p.createdAt.slice(0, 10),
+      type: "start",
+      label: "プロジェクト開始",
+      detail: "",
+    });
+
+    // Word count history entries
+    if (p.wordCountHistory) {
+      for (let i = 0; i < p.wordCountHistory.length; i++) {
+        const entry = p.wordCountHistory[i];
+        const prev = i > 0 ? p.wordCountHistory[i - 1] : null;
+        const diff = prev ? entry.count - prev.count : entry.count;
+        const pct = p.targetWordCount ? Math.min(100, Math.round((entry.count / p.targetWordCount) * 100)) : null;
+        events.push({
+          date: entry.date,
+          type: "wordcount",
+          label: formatNumber(entry.count) + "字",
+          diff: diff,
+          pct: pct,
+        });
+      }
+    }
+
+    // Plot completion events
+    if (p.plots) {
+      p.plots.forEach((pl) => {
+        if (pl.completed && pl.completedAt) {
+          events.push({
+            date: pl.completedAt.slice(0, 10),
+            type: "plot",
+            label: "プロット完了",
+            detail: pl.title,
+          });
+        }
+      });
+    }
+
+    // Deadline / goal
+    if (p.deadline) {
+      events.push({
+        date: p.deadline,
+        type: "goal",
+        label: "締め切り・目標日",
+        detail: "",
+      });
+    }
+
+    // Sort by date
+    events.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      // start first, goal last
+      const order = { start: 0, wordcount: 1, plot: 1, goal: 2 };
+      return (order[a.type] || 1) - (order[b.type] || 1);
+    });
+
+    if (events.length <= 1) {
+      timelineSection.innerHTML = `
+        <div class="timeline-section-title">タイムライン</div>
+        <p class="timeline-empty">進捗データを記録すると、ここにタイムラインが表示されます</p>
+      `;
+      return;
+    }
+
+    const today = todayISO();
+
+    const itemsHtml = events.map((ev) => {
+      let dotClass = "";
+      let contentHtml = "";
+
+      if (ev.type === "start") {
+        dotClass = "active";
+        contentHtml = `<div class="timeline-start">開始</div>`;
+      } else if (ev.type === "goal") {
+        dotClass = "milestone";
+        contentHtml = `<div class="timeline-goal">🏁 ${escapeHtml(ev.label)}</div>`;
+      } else if (ev.type === "wordcount") {
+        dotClass = ev.pct != null && ev.pct >= 100 ? "complete" : "active";
+        let diffHtml = "";
+        if (ev.diff > 0) {
+          diffHtml = `<span class="tl-diff positive">+${formatNumber(ev.diff)}</span>`;
+        } else if (ev.diff < 0) {
+          diffHtml = `<span class="tl-diff negative">${formatNumber(ev.diff)}</span>`;
+        }
+        let barHtml = "";
+        if (ev.pct != null) {
+          const fillCls = ev.pct >= 100 ? "complete" : "";
+          barHtml = `<div class="timeline-progress-bar"><div class="timeline-progress-fill ${fillCls}" style="width:${ev.pct}%"></div></div>`;
+        }
+        contentHtml = `<div class="timeline-content"><span class="tl-label">文字数:</span> <span class="tl-value">${ev.label}</span>${diffHtml}${barHtml}</div>`;
+      } else if (ev.type === "plot") {
+        dotClass = "complete";
+        contentHtml = `<div class="timeline-content"><span class="tl-label">✓</span> <span class="tl-value">${escapeHtml(ev.detail)}</span></div>`;
+      }
+
+      return `
+        <div class="timeline-item">
+          <div class="timeline-dot ${dotClass}"></div>
+          <div class="timeline-date">${formatDate(ev.date)}${ev.date === today ? " (今日)" : ""}</div>
+          ${contentHtml}
+        </div>
+      `;
+    }).join("");
+
+    timelineSection.innerHTML = `
+      <div class="timeline-section-title">タイムライン</div>
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+        ${itemsHtml}
+      </div>
+    `;
   }
 
   // ---- Drag and Drop ----
@@ -874,6 +1013,7 @@
     if (!plot) return;
 
     plot.completed = !plot.completed;
+    plot.completedAt = plot.completed ? new Date().toISOString() : null;
     p.updatedAt = new Date().toISOString();
     persist();
     renderPlotProgress(p);
@@ -892,6 +1032,58 @@
       renderPlotList(p);
     });
   }
+
+  // ---- URL Share ----
+  function compressData(data) {
+    const json = JSON.stringify(data);
+    // Use encodeURIComponent + btoa for broad compatibility
+    try {
+      return btoa(unescape(encodeURIComponent(json)));
+    } catch {
+      return null;
+    }
+  }
+
+  function decompressData(encoded) {
+    try {
+      const json = decodeURIComponent(escape(atob(encoded)));
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  function generateShareUrl() {
+    const data = {
+      v: 1,
+      c: selectedCharacter,
+      p: projects,
+    };
+    const encoded = compressData(data);
+    if (!encoded) {
+      alert("データの圧縮に失敗しました。");
+      return null;
+    }
+    return window.location.origin + window.location.pathname + "#share=" + encoded;
+  }
+
+  function checkUrlForSharedData() {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#share=")) return;
+    const encoded = hash.slice(7);
+    const data = decompressData(encoded);
+    if (!data || !data.p || !Array.isArray(data.p)) {
+      alert("共有URLのデータが無効です。");
+      window.location.hash = "";
+      return;
+    }
+    pendingRestore = data;
+    const restoreInfo = $("#restoreInfo");
+    restoreInfo.textContent = data.p.length + " 件のプロジェクトが含まれています";
+    restoreModal.style.display = "";
+  }
+
+  let pendingRestore = null;
 
   // ---- Data Export / Import ----
   function exportData() {
@@ -1015,6 +1207,78 @@
     }
   });
 
+  // URL Share events
+  shareUrlBtn.addEventListener("click", () => {
+    dataMenu.style.display = "none";
+    shareUrlSection.style.display = "none";
+    shareModal.style.display = "";
+  });
+
+  shareModalCloseBtn.addEventListener("click", () => {
+    shareModal.style.display = "none";
+  });
+
+  closeShareModalBtn.addEventListener("click", () => {
+    shareModal.style.display = "none";
+  });
+
+  generateShareUrlBtn.addEventListener("click", () => {
+    const url = generateShareUrl();
+    if (!url) return;
+    shareUrlInput.value = url;
+    shareUrlSection.style.display = "";
+    const sizeKB = (new Blob([url]).size / 1024).toFixed(1);
+    shareUrlSize.textContent = "URL長: 約" + sizeKB + "KB";
+    if (url.length > 8000) {
+      shareUrlSize.textContent += "（URLが長いため、一部ブラウザやサービスで共有できない場合があります）";
+      shareUrlSize.className = "share-url-size warning";
+    } else {
+      shareUrlSize.className = "share-url-size";
+    }
+  });
+
+  copyShareUrlBtn.addEventListener("click", () => {
+    shareUrlInput.select();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrlInput.value).then(() => {
+        copyShareUrlBtn.textContent = "コピー済み！";
+        setTimeout(() => { copyShareUrlBtn.textContent = "コピー"; }, 2000);
+      });
+    } else {
+      document.execCommand("copy");
+      copyShareUrlBtn.textContent = "コピー済み！";
+      setTimeout(() => { copyShareUrlBtn.textContent = "コピー"; }, 2000);
+    }
+  });
+
+  // Restore from URL events
+  restoreCancelBtn.addEventListener("click", () => {
+    restoreModal.style.display = "none";
+    pendingRestore = null;
+    window.location.hash = "";
+  });
+
+  restoreOkBtn.addEventListener("click", () => {
+    if (pendingRestore) {
+      projects = pendingRestore.p;
+      persist();
+      if (pendingRestore.c && CHARACTERS[pendingRestore.c]) {
+        selectedCharacter = pendingRestore.c;
+        saveCharacter(selectedCharacter);
+      }
+      renderMascot();
+      if (currentProjectId) {
+        closeProjectDetail();
+      } else {
+        renderProjectList();
+      }
+      alert("データを復元しました（" + projects.length + "件のプロジェクト）");
+    }
+    restoreModal.style.display = "none";
+    pendingRestore = null;
+    window.location.hash = "";
+  });
+
   mascotRefresh.addEventListener("click", () => {
     mascotMessage.textContent = pickRandomMessage(selectedCharacter);
   });
@@ -1026,7 +1290,7 @@
   });
 
   // Close modals on overlay click
-  [projectModal, plotModal, confirmModal].forEach((modal) => {
+  [projectModal, plotModal, confirmModal, shareModal, restoreModal].forEach((modal) => {
     modal.addEventListener("click", (e) => {
       if (e.target === modal) {
         modal.style.display = "none";
@@ -1053,4 +1317,5 @@
   // ---- Init ----
   renderMascot();
   renderProjectList();
+  checkUrlForSharedData();
 })();
